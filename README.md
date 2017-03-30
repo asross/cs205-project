@@ -34,6 +34,6 @@ To evaluate this method, we would again check to see if we obtain more accurate 
 ### Hidden Markov Models for GPU
 
 There are three reasons I think parallelizing HMMs are promising.
-1.) HMMs are littered with matrix operations. I believe the forward-backward algorithm in particular can go on the GPU which means we have the potential to realize very large speedup (confirmed via rough literature search).
-2.) Readily split between multiple team members. HMMs are associated with a bundle of inferences of interest. For instance most likely path (Viterbi), Baum-Welch (emission and transition matrices) etc. This would naturally lend itself being distributed across the team.
-3.) Relatively simple to check our implementation is correct. In particular, if we decide on initialization for EM, the solution is deterministic so we'll get the same result on reruns. It's also easy to generate data with which to test our implementation. Finally HMMs are really fun! 
+- HMMs are littered with matrix operations. I believe the forward-backward algorithm in particular can go on the GPU which means we have the potential to realize very large speedups (confirmed via rough literature search).
+- Readily split between multiple team members. HMMs are associated with a bundle of inferences of interest. For instance most likely path (Viterbi), Baum-Welch (emission and transition matrices) etc. This would naturally lend itself to distributing work across the team.
+- Relatively simple to check our implementation is correct. In particular, if we decide on initialization for EM, the solution is deterministic so we'll get the same result on reruns. It's also easy to generate data with which to test our implementation. Finally HMMs are really fun! 
