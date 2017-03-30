@@ -30,3 +30,10 @@ Imagine a hierarchy of MCMC samplers that propose points at different length sca
 Analysis and care is needed to ensure that this method gives us unbiased samples in the long run. For example, the lifespan of subsamplers may need to depend on the magnitude of `s(x)` at the `x` from which they are spawned.
 
 To evaluate this method, we would again check to see if we obtain more accurate expectations with less time / computing resources than simple parallel or sequential chains. We would also try to determine if there are good initial length scales and length scale / iteration decays for lower-level sampling.
+
+### Hidden Markov Models for GPU
+
+There are three reasons I think parallelizing HMMs are promising.
+1.) HMMs are littered with matrix operations. I believe the forward-backward algorithm in particular can go on the GPU which means we have the potential to realize very large speedup (confirmed via rough literature search).
+2.) Readily split between multiple team members. HMMs are associated with a bundle of inferences of interest. For instance most likely path (Viterbi), Baum-Welch (emission and transition matrices) etc. This would naturally lend itself being distributed across the team.
+3.) Relatively simple to check our implementation is correct. In particular, if we decide on initialization for EM, the solution is deterministic so we'll get the same result on reruns. It's also easy to generate data with which to test our implementation. Finally HMMs are really fun! 
