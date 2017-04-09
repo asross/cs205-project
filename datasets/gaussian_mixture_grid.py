@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 import numpy as np
+import pymc3 as pm
 import itertools
 import scipy.misc
+import theano
 
 class cacheprop(object):
   def __init__(self, getter): self.getter = getter
@@ -27,6 +29,15 @@ class GaussianMixtureGrid():
     individual_logps = ((x - self.means)**2).sum(axis=1) * self.over2sigma2 + self.logZ
     return scipy.misc.logsumexp(individual_logps)
 
+  def to_pymc(self, **kwargs):
+    return pm.DensityDist(self.name, self.theano_logp, shape=self.dimensionality, **kwargs)
+
+  @cacheprop
+  def theano_logp(self):
+    mu = theano.shared(self.means)
+    return lambda *x: theano.tensor.sum(pm.math.logsumexp(
+      ((x - mu)**2).sum(axis=1) * self.over2sigma2 + self.logZ))
+
   @cacheprop
   def means(self):
     return np.array(list(itertools.product(
@@ -40,3 +51,11 @@ class GaussianMixtureGrid():
 
   @cacheprop # -1 / (2σ²)
   def over2sigma2(self): return -1. / (2 * self.stddev**2)
+
+  @cacheprop
+  def name(self):
+    d = 'x'.join([str(self.length) for _ in range(self.dimensionality)])
+    return "GaussianMixtureGrid{}(sd={},dx={})".format(d, self.stddev, self.spacing)
+
+  def __repr__(self):
+    return self.name
