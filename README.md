@@ -1,16 +1,40 @@
-# CS205 Spring 2017 Project
+# CS205 Spring 2017 Project: Parallel MCMC
 
 Laith Alhussein, Nathaniel Burbank, Shawn Pan, Andrew Ross, and Rohan Thavarajah
 
-## Project Proposals
+## Background
 
-### Teleporting Parallel MCMC
+Markov-Chain Monte Carlo (MCMC) is a great way to sample from complicated distributions that we cannot sample directly (and it works even if we only know something proportional to the density). It operates by starting at a particular location on the distribution, proposing a next location, and only moving there with probability based on the ratio of the densities at the two locations. After many iterations of this process, the resulting "trace" of locations converges to samples from the distribution of interest -- if the process by which you propose and choose points satisfies a condition known as detailed balance.
 
-Motivation: MCMC samples efficiently but only for ergodic chains, and then only with correlations. Rejection sampling is inefficient even on steroids but generates uncorrelated samples even over multimodal distributions.
+MCMC is a major enabler of "big science"; beyond pure statistics, many important simulations in physics and chemistry [cite] involve taking samples or averages (computed from samples) of distributions intractable to direct integration.
 
-Assume we are trying to sample from a target distribution `s(x)` which is not amenable to normal MCMC.
+However, MCMC suffers from a major problem when it comes to _multimodal_ distributions, which occur frequently especially when there is some inherently categorical event that triggers disjoint follow-up outcomes. In particular, the local stepping method which lets it handle intractable distributions fails when, to move from one mode to another, the chain must bridge a chasm of very low probability density. In these cases, MCMC fails to converge, and the results obtained from using it are biased.
 
-On one set of nodes, we run many parallel copies of an inefficient rejection sampler for `s` that only has a probability `\epsilon` of generating a sample. Whenever we generate a sample, we send it asynchronously via MPI to a shared buffer.
+Theoretically, however, one _can_ run a chain for an infinite number of iterations, and it will eventually explore all of the modes if we use a proposal distribution whose support is infinite. Running parallel chains may help, as can more high-powered proposal methods like Hamiltonian Monte-Carlo, which introduces the concept of momentum to allow the chain to more efficiently explore its space. But even with many chains in parallel for many iterations, we still may not solve the problem efficiently.
+
+## MCMC and Parallel Computing 
+
+For a distribution we know beforehand, there are a variety of convergence metrics we can apply (which we will detail later). We can analyze the extent to which parallelism helps us converge faster in the framework of parallel computing. In particular, for a given MCMC algorithm and a given distribution, we can define `T₁` as the number of iterations required to converge for a single chain, and `T∞` as the number of iterations required to converge if we combine results from an infinite number of parallel chains. For many distributions, there is some "burnin" `B`, which is the number of samples we need to discard from the beginning of the chain that are unrepresentative, since they depend on the arbitrary location where we start (not on the distribution itself). In this case, we actually have `T∞ = B+1`, since we can take one sample from infinitely many chains after burnin.
+
+Following this analysis, we can plot speedup, efficiency, and cost graphs for a number of MCMC algorithms on a number of different distributions:
+
+* _insert plot here, Tp vs. p_
+
+For this distribution (_insert math here_), the cost-optimal number of chains was **n**.
+
+However, when given a multimodal distribution that _x_ method of MCMC struggles to handle, we find that convergence takes an extremely long time:
+
+* _insert plot here?_
+
+In this case, rather than trying to speed up convergence by adding more parallel machines running the same unsuitable algorithm, we can split up the problem in a different way to allow faster convergence.
+
+* insert analysis of expected convergence time with known probabilities of moving between modes?
+
+## Teleporting Parallel MCMC
+
+Rejection sampling is another method for sampling from intractable distributions. It operates by sampling from a tractable distribution that "covers" the intractable distribution (multiplied by a constant to raise it higher), then only accepting it with probability proportional to the ratio of the tractable and intractable distributions. In high dimensions, it is much less efficient than MCMC because the covering distribution will likely be a very loose fit over the distribution of interest, and we only accept samples with probability proportional to the volume of filled to empty space (which shrinks exponentially with more dimensions). But it has the advantage of producing completely uncorrelated samples from the entire distribution regardless of multimodality.
+
+The basic idea of "teleporting" parallel MCMC is to combine inefficient but unbiased rejection sampling with efficient but biased MCMC. On one set of nodes, we run many parallel copies of an inefficient rejection sampler for `s` that only has a probability `\epsilon` of generating a sample. Whenever we generate a sample, we send it asynchronously via MPI to a shared buffer.
 
 On another set of nodes, we run many parallel copies of an efficient but biased MCMC sampler that normally uses a symmetric proposal `p(x2|x1)` and accepts proposals with probability `min(1, p(x2|x1)s(x2)/p(x1|x2)s(x2)) = min(1, s(x2)/s(x1))`. However, these MCMC samplers are modified to _teleport_ with probability `\epsilon` to a random rejection sample they claim from the shared buffer (which they always accept). We can see that this modified proposal still satisfies detailed balance:
 
@@ -23,17 +47,22 @@ To evaluate this method, we would determine if:
 - splitting nodes between rejection sampling and MCMC performs better than simply allocating all nodes to one or the other
 - there is an ideal ratio / teleportation probability `\epsilon` for a given distribution `s` that determines how we should allocate our nodes
 
-### Hierarchical Parallel MCMC
+## Implementation
 
-Imagine a hierarchy of MCMC samplers that propose points at different length scales. We could start with one "global" sampler that may be inefficient but can move long distances across the distribution. This global sampler periodically spawns subsamplers, which movie with a smaller length scale and perhaps have a limited lifespan. These subsamplers can themselves spawn subsubsamplers that explore even more locally for an even shorter period of time. Subsampling tasks can execute in parallel using a (possibly distributed) thread pool, and additional processes can aggregate results.
+TODO
 
-Analysis and care is needed to ensure that this method gives us unbiased samples in the long run. For example, the lifespan of subsamplers may need to depend on the magnitude of `s(x)` at the `x` from which they are spawned.
+## Evaluation
 
-To evaluate this method, we would again check to see if we obtain more accurate expectations with less time / computing resources than simple parallel or sequential chains. We would also try to determine if there are good initial length scales and length scale / iteration decays for lower-level sampling.
+### Synthetic Data
 
-### Hidden Markov Models for GPU
+A natural model to test these methods on is a mixture of Gaussians. These distributions are naturally multimodal, but their full distribution is known and easy to sample from, so we can easily evaluate a number of exact rather than approximate convergence metrics. We can also vary the parameters of the mixture (i.e. the proximity and width of each mode as well as the number of modes and dimensions) and see what happens to convergence times.
 
-There are three reasons I think parallelizing HMMs are promising.
-- HMMs are littered with matrix operations. I believe the forward-backward algorithm in particular can go on the GPU which means we have the potential to realize very large speedups (confirmed via rough literature search).
-- Readily split between multiple team members. HMMs are associated with a bundle of inferences of interest. For instance most likely path (Viterbi), Baum-Welch (emission and transition matrices) etc. This would naturally lend itself to distributing work across the team. Also really conveniently, the algorithms scale nicely in difficulty. We can for instance start with an easy inferential task e.g. filtering and work our way towards more complex tasks. 
-- Relatively simple to check our implementation is correct. In particular, if we decide on initialization for EM, the solution is deterministic so we'll get the same result on reruns. It's also easy to generate data with which to test our implementation. Finally HMMs are really fun! 
+![GMM](doc/pdf-and-log-pdf.png)
+
+For the above mixture of 2D Gaussians, which overlap significantly, it is easy for MCMC methods to converge quickly:
+
+![2d](doc/nuts-converges-2d.png)
+
+However, when we try to sample from a lattice of 3D Gaussians, convergence is more difficult to achieve:
+
+![3d](doc/nuts-doesnt-converge.png)
