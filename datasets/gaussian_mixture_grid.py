@@ -29,8 +29,30 @@ class GaussianMixtureGrid():
     individual_logps = ((x - self.means)**2).sum(axis=1) * self.over2sigma2 + self.logZ
     return scipy.misc.logsumexp(individual_logps)
 
+  def logps(self, xes):
+    diffs = np.array([xes[:,[i]] - self.means[:,i] for i in range(self.dimensionality)])
+    logps = (diffs**2).sum(axis=0) * self.over2sigma2 + self.logZ
+    return scipy.misc.logsumexp(logps, axis=1)
+
   def to_pymc(self, **kwargs):
     return pm.DensityDist(self.name, self.theano_logp, shape=self.dimensionality, **kwargs)
+
+  def rejection_sample_bounding_box(self, n):
+    samples = np.random.uniform(*self.bounding_box, size=(n, self.dimensionality))
+    heights = np.random.uniform(0, self.mode_height, size=n)
+    return samples[np.log(heights) < self.logps(samples)]
+
+  def within_bounding_box(self, x):
+    mn, mx = self.bounding_box
+    return all(mn <= xi <= mx for xi in x)
+
+  @cacheprop
+  def mode_height(self):
+    return np.exp(self.logp(self.means[0]))
+
+  @cacheprop
+  def bounding_box(self):
+    return self.means.min() - 3*self.stddev, self.means.max() + 3*self.stddev
 
   @cacheprop
   def theano_logp(self):
