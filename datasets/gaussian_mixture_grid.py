@@ -78,3 +78,36 @@ class GaussianMixtureGrid():
 
   def __repr__(self):
     return self.name
+
+  def mh_with_teleportation(self, initial_value, proposal, num_samples, teleprob=None):
+    # Compute rejection samples in batches for efficiency
+    self.rsamp_v, self.rsamp_i = [], 0
+    def next_rejection_sample():
+      while self.rsamp_i >= len(self.rsamp_v): # `while` in case 10000 isn't enough for 1
+        self.rsamp_v, self.rsamp_i = self.rejection_sample_bounding_box(10000), 0
+      value = self.rsamp_v[self.rsamp_i]
+      self.rsamp_i += 1
+      return value
+
+    # initialize samples, starting point, and starting point log prob
+    samples = np.empty((num_samples, initial_value.shape[0]))
+    x1 = initial_value
+    lp1 = self.logp(x1)
+
+    # default telepprob is based on how efficiently we can rejection sample
+    if teleprob is None:
+      teleprob = len(self.rejection_sample_bounding_box(10000)) / 10000.
+
+    # Metropolis-Hastings with teleportation inside the bounding box
+    for i in range(num_samples):
+      if self.within_bounding_box(x1) and np.random.uniform() < teleprob:
+        x1 = next_rejection_sample()
+      else:
+        x2 = proposal(x1)
+        lp2 = self.logp(x2)
+        if np.log(np.random.uniform()) < lp2 - lp1:
+          x1 = x2
+          lp1 = lp2
+      samples[i,:] = x1
+
+    return samples
