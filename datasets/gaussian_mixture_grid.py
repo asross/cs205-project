@@ -66,7 +66,7 @@ class GaussianMixtureGrid():
       *[np.arange(self.length) * self.spacing for _ in range(self.dimensionality)])))
 
   @cacheprop # log normalizing constant
-  def logZ(self): return -self.dimensionality * np.log(np.sqrt(2*np.pi) * self.stddev)
+  def logZ(self): return -self.dimensionality * np.log(np.sqrt(2*np.pi) * self.stddev) - np.log(len(self.means))
 
   @cacheprop # -1 / (2σ²)
   def over2sigma2(self): return -1. / (2 * self.stddev**2)
