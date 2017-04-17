@@ -34,6 +34,12 @@ class GaussianMixtureGrid():
     logps = (diffs**2).sum(axis=0) * self.over2sigma2 + self.logZ
     return scipy.misc.logsumexp(logps, axis=1)
 
+  def cdf(self, x):
+    m = np.zeros(len(x))
+    S = np.identity(len(x)) * self.stddev
+    neginf = np.ones(len(x)) * -100
+    return sum(scipy.stats.mvn.mvnun(neginf, xx, m, S) for xx in self.means - x)
+
   def to_pymc(self, **kwargs):
     return pm.DensityDist(self.name, self.theano_logp, shape=self.dimensionality, **kwargs)
 
@@ -80,11 +86,14 @@ class GaussianMixtureGrid():
     return self.name
 
   def mh_with_teleportation(self, initial_value, proposal, num_samples, teleprob=None, rejn=10000):
+    self.iters = 0
+
     # Compute rejection samples in batches for efficiency
     self.rsamp_v, self.rsamp_i = [], 0
     def next_rejection_sample():
       while self.rsamp_i >= len(self.rsamp_v): # `while` in case 10000 isn't enough for 1
         self.rsamp_v, self.rsamp_i = self.rejection_sample_bounding_box(rejn), 0
+        self.iters += rejn
       value = self.rsamp_v[self.rsamp_i]
       self.rsamp_i += 1
       return value
@@ -103,6 +112,7 @@ class GaussianMixtureGrid():
       if self.within_bounding_box(x1) and np.random.uniform() < teleprob:
         x1 = next_rejection_sample()
       else:
+        self.iters += 1
         x2 = proposal(x1)
         lp2 = self.logp(x2)
         if np.log(np.random.uniform()) < lp2 - lp1:
