@@ -55,18 +55,23 @@ since they depend on the arbitrary location where we start (not on the
 distribution itself). In this case, we actually have `T∞ = B+1`, since we can
 take one sample from infinitely many chains after burnin.
 
-Following this analysis, we will plot speedup, efficiency, and cost graphs for a
-number of MCMC algorithms on a number of different distributions:
+Following this analysis, we can plot speedup, efficiency, and cost graphs for a
+number of sampling algorithms on a number of different distributions. For
+example, here is a comparison of how the convergence time of three sampling
+methods on a simple, 1D Gaussian mixture varies with the degree of parallelism
+of the sampler:
 
-* _insert plot here, Tp vs. p_
+![GMM](doc/direct-vs-rejection.png)
 
-For this distribution (_insert math here_), the cost-optimal number of chains
-was **n**.
+where we defined "convergence time" as the number of iterations until the
+sample mean stayed within 0.05 of the true mean for a large number of iterations.
 
-However, when given a multimodal distribution that _x_ method of MCMC struggles
-to handle, we find that convergence takes an extremely long time:
-
-* _insert plot here?_
+Note that direct sampling is the most reliable and fastest to converge, while
+rejection sampling is less efficient and has higher variance (since it must
+reject a large percentage of the samples it draws). Metropolis-Hastings, the
+classic MCMC algorithm, fails to converge entirely even with 50,000 iterations
+per chain until we concatenate together 16 parallel chains because it cannot
+handle even basic multimodality efficiently.
 
 In this case, rather than trying to speed up convergence by adding more
 parallel machines running the same unsuitable algorithm, we can parallelize the
@@ -91,14 +96,14 @@ regardless of multimodality.
 The basic idea of "teleporting" parallel MCMC is to combine inefficient but
 unbiased rejection sampling with efficient but biased MCMC. On one set of
 nodes, we run many parallel copies of an inefficient rejection sampler for `s`
-that only has a probability `\epsilon` of generating a sample. Whenever we
+that only has a probability `ɛ` of generating a sample. Whenever we
 generate a sample, we send it asynchronously via MPI to a shared buffer.
 
 On another set of nodes, we run many parallel copies of an efficient but biased
 MCMC sampler that normally uses a symmetric proposal `p(x2|x1)` and accepts
 proposals with probability `min(1, p(x2|x1)s(x2)/p(x1|x2)s(x2)) = min(1,
 s(x2)/s(x1))`. However, these MCMC samplers are modified to _teleport_ with
-probability `\epsilon` to a random rejection sample they claim from the shared
+probability `ɛ` to a random rejection sample they claim from the shared
 buffer (which they always accept). We can see that this modified proposal still
 satisfies detailed balance:
 
@@ -116,7 +121,7 @@ To evaluate this method, we would determine if:
   without, for various proposals and numbers of iterations
 - splitting nodes between rejection sampling and MCMC performs better than
   simply allocating all nodes to one or the other
-- there is an ideal ratio / teleportation probability `\epsilon` for a given
+- there is an ideal ratio / teleportation probability `ɛ` for a given
   distribution `s` that determines how we should allocate our nodes
 
 ## Implementation
@@ -146,3 +151,5 @@ However, when we try to sample from a lattice of 3D Gaussians, convergence is
 more difficult to achieve:
 
 ![3d](doc/nuts-doesnt-converge.png)
+
+If we switch to 
