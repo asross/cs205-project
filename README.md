@@ -9,10 +9,11 @@ Markov Chain Monte Carlo (MCMC) is a statistical method that allows us to draw
 samples from complicated probability distributions for which we can only
 calculate relative likelihoods between locations. It operates by starting at a
 particular location on the distribution, proposing a next location, and making
-a random decision to move or stay put based on that relative likelihood.  After
+a random decision to move or stay put based on that relative likelihood. After
 many iterations of this process, the resulting "trace" of locations converges
-to samples from the distribution of interest -- if the process by which you
-propose and choose points satisfies a condition known as detailed balance.
+to samples from the distribution of interest -- if the process by which the
+algorithm proposes and chooses points satisfies a condition known as detailed
+balance.
 
 MCMC is a major enabler of "big science"; beyond pure statistics, many
 important simulations in physics, chemistry, and even weather forecasting
@@ -20,20 +21,24 @@ important simulations in physics, chemistry, and even weather forecasting
 distributions intractable to direct integration.
 
 However, MCMC suffers from a major problem when it comes to _multimodal_
-distributions, i.e. cases in which multilple disjoint outcome regions are each
-likely. In particular, the local stepping method which lets it handle
-intractable distributions is exactly what hampers it from multimodal sampling;
-to move from one mode to another, the chain must bridge a chasm of very low
-probability density, which is unlikely. In these cases, MCMC fails to converge,
-and the results obtained from using it are biased.
+distributions. These are cases in which there exist multiple disjoint outcome
+regions that are each equally likely. In particular, the local stepping method
+which lets MCMC algorithms handle intractable distributions is exactly what
+hampers it from multimodal sampling; to move from one mode to another, the
+chain must bridge a chasm of very low probability density, which is unlikely.
+In these cases, the MCMC chain frequently gets “stuck” in one of the modes and
+fails to converge. The results from a trace generated under these
+circumstances are biased and no longer representative of the distribution we
+were attempting to sample from.
 
-Theoretically, however, one _can_ run a chain for an infinite number of
-iterations, and it will eventually explore all of the modes if we use a
-proposal distribution whose support is infinite. Running parallel chains may
-help, as can more high-powered proposal methods like Hamiltonian Monte-Carlo,
-which introduces the concept of momentum to allow the chain to more efficiently
-explore its space. But even with many chains in parallel for many iterations,
-we still may not solve the problem efficiently.
+In theory, even with a multimodal distribution a chain run for an infinite
+number of iterations will eventually explore all of the modes if we use a
+proposal distribution whose support is infinite. Additionally, running
+parallel chains may also help, as would more high-powered proposal methods
+like Hamiltonian Monte-Carlo (HMC), which introduces the concept of momentum
+to allow the chain to more efficiently explore its space. In practice however,
+even with many chains run in parallel for many iterations, we still may not
+solve the problem efficiently.
 
 ## MCMC and Parallel Computing
 
@@ -50,7 +55,7 @@ since they depend on the arbitrary location where we start (not on the
 distribution itself). In this case, we actually have `T∞ = B+1`, since we can
 take one sample from infinitely many chains after burnin.
 
-Following this analysis, we can plot speedup, efficiency, and cost graphs for a
+Following this analysis, we will plot speedup, efficiency, and cost graphs for a
 number of MCMC algorithms on a number of different distributions:
 
 * _insert plot here, Tp vs. p_
@@ -72,7 +77,7 @@ problem in a different way to allow faster convergence.
 Rejection sampling is another method for sampling from intractable
 distributions. It operates by sampling from a tractable distribution that
 "covers" the intractable distribution (multiplied by a constant to raise it
-higher), then only accepting it with probability proportional to the ratio of
+higher), then only accepting it with a probability proportional to the ratio of
 the tractable and intractable distributions. In high dimensions, it is much
 less efficient than MCMC because the covering distribution will likely be a
 very loose fit over the distribution of interest, and we only accept samples
@@ -127,7 +132,8 @@ distributions are naturally multimodal, but their full distribution is known
 and easy to sample from, so we can easily evaluate a number of exact rather
 than approximate convergence metrics. We can also vary the parameters of the
 mixture (i.e. the proximity and width of each mode as well as the number of
-modes and dimensions) and see what happens to convergence times.
+modes and dimensions) and evaluate how our convergence metrics differ under
+these conditions.
 
 ![GMM](doc/pdf-and-log-pdf.png)
 
