@@ -46,7 +46,8 @@ class GaussianMixtureGrid():
   def rejection_sample_bounding_box(self, n):
     samples = np.random.uniform(*self.bounding_box, size=(n, self.dimensionality))
     heights = np.random.uniform(0, self.mode_height, size=n)
-    return samples[np.log(heights) < self.logps(samples)]
+    idx = np.log(heights) < self.logps(samples)
+    return samples[idx], np.arange(n)[idx]
 
   def within_bounding_box(self, x):
     mn, mx = self.bounding_box
@@ -89,16 +90,23 @@ class GaussianMixtureGrid():
     self.iters = 0
 
     # Compute rejection samples in batches for efficiency
-    self.rsamp_v, self.rsamp_i = [], 0
+    self.rej_values = []
+    self.rej_index = 0
+    self.rej_iters = []
     def next_rejection_sample():
-      while self.rsamp_i >= len(self.rsamp_v): # `while` in case 10000 isn't enough for 1
-        self.rsamp_v, self.rsamp_i = self.rejection_sample_bounding_box(rejn), 0
-        self.iters += rejn
-      value = self.rsamp_v[self.rsamp_i]
-      self.rsamp_i += 1
+      while self.rej_index >= len(self.rej_values):
+        self.rej_values, self.rej_iters = self.rejection_sample_bounding_box(rejn)
+        self.rej_index = 0
+      value = self.rej_values[self.rej_index]
+      if self.rej_index == 0:
+        self.iters += self.rej_iters[0]
+      else:
+        self.iters += self.rej_iters[self.rej_index] - self.rej_iters[self.rej_index-1]
+      self.rej_index += 1
       return value
 
     # initialize samples, starting point, and starting point log prob
+    indexes = np.empty(num_samples)
     samples = np.empty((num_samples, initial_value.shape[0]))
     x1 = initial_value
     lp1 = self.logp(x1)
@@ -119,5 +127,6 @@ class GaussianMixtureGrid():
           x1 = x2
           lp1 = lp2
       samples[i,:] = x1
+      indexes[i] = self.iters
 
-    return samples
+    return samples, indexes

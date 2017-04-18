@@ -61,7 +61,7 @@ example, here is a comparison of how the convergence time of three sampling
 methods on a simple, 1D Gaussian mixture varies with the degree of parallelism
 of the sampler:
 
-![GMM](doc/direct-vs-rejection.png)
+![dir-vs-rej](doc/direct-vs-rejection.png)
 
 where we defined "convergence time" as the number of iterations until the
 sample mean stayed within 0.05 of the true mean for a large number of iterations.
@@ -73,31 +73,25 @@ classic MCMC algorithm, fails to converge entirely even with 50,000 iterations
 per chain until we concatenate together 16 parallel chains because it cannot
 handle even basic multimodality efficiently.
 
-In this case, rather than trying to speed up convergence by adding more
-parallel machines running the same unsuitable algorithm, we can parallelize the
-problem in a different way to allow faster convergence.
+However, in general, direct sampling isn't usually possible for problems we
+care about, and the efficiency of rejection sampling drops exponentially as we
+increase the number of dimensions:
+
+![rej-vs-dim](doc/rejection-dim.png)
+
+So we generally must use local sampling techniques. But rather than trying to
+speed up their convergence by adding more parallel machines running the same
+unsuitable algorithm, we can parallelize the problem in a different way to
+allow faster convergence.
 
 ## Teleporting Parallel MCMC
 
-Rejection sampling is another method for sampling from intractable
-distributions. It operates by sampling from a tractable distribution that
-"covers" the intractable distribution (multiplied by a constant to raise it
-higher), then only accepting it with a probability proportional to the ratio of
-the tractable and intractable distributions. In high dimensions, it is much
-less efficient than MCMC because the covering distribution will likely be a
-very loose fit over the distribution of interest, and we only accept samples
-with probability proportional to the volume of filled to empty space (which
-shrinks exponentially with more dimensions). But it has the advantage of
-producing completely uncorrelated samples from the entire distribution
-regardless of multimodality.
-
-* _rejection sampling efficiency by dimensionality_
-
-The basic idea of "teleporting" parallel MCMC is to combine inefficient but
-unbiased rejection sampling with efficient but biased MCMC. On one set of
-nodes, we run many parallel copies of an inefficient rejection sampler for `s`
-that only has a probability `ɛ` of generating a sample. Whenever we
-generate a sample, we send it asynchronously via MPI to a shared buffer.
+The intuition behind this approach is to combine MCMC (which efficiently
+produces biased samples) with rejection sampling (which inefficiently produces
+unbiased samples). On one set of nodes, we run many parallel copies of an
+inefficient rejection sampler for a distribution `s` that only has a
+probability `ɛ` of generating a sample. Whenever we generate a sample, we send
+it asynchronously via MPI to a shared buffer.
 
 On another set of nodes, we run many parallel copies of an efficient but biased
 MCMC sampler that normally uses a symmetric proposal `p(x2|x1)` and accepts
@@ -126,7 +120,9 @@ To evaluate this method, we would determine if:
 
 ## Implementation
 
-TODO
+We have implemented this scheme in sequential code, but plan to parallelize it
+using MPI (for interchain communication and aggregation) and OpenMP (to
+parallelize rejection sampling locally on each node). More details coming.
 
 ## Evaluation
 
@@ -152,4 +148,7 @@ more difficult to achieve:
 
 ![3d](doc/nuts-doesnt-converge.png)
 
-If we switch to 
+If we switch to our teleporting sampler (with `ɛ≈0.05`), our samples appear
+much less biased:
+
+![tele](doc/teleportation.png)
