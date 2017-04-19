@@ -161,3 +161,5 @@ much less biased:
 We are working on larger scale convergence results for this scheme vs. MCMC vs.
 rejection sampling, as well as finding a suitable real-world dataset to test
 against.
+
+## Alternative Convergence metrics
