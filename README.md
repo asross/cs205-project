@@ -127,7 +127,7 @@ parallelize rejection sampling locally on each node).
 We have parallelized the normal MCMC algorithms with MPI on Odyssey (using
 [pymc3](http://pymc-devs.github.io/pymc3/) and
 [mpi4py](https://bitbucket.org/mpi4py/mpi4py)). [Code is available
-here](odyssey_setup/pymc3_mpi_test/pymc3_mpi_test.py).
+here](https://github.com/asross/cs205-project/blob/master/odyssey_setup/pymc3_mpi_test/pymc3_mpi_test.py).
 
 ## Evaluation
 
