@@ -5,7 +5,7 @@ import itertools
 import scipy.misc
 import theano
 
-class cacheprop(object):
+class cacheprop():
   def __init__(self, getter): self.getter = getter
   def __get__(self, actual_self, _):
     value = self.getter(actual_self)
@@ -54,6 +54,10 @@ class GaussianMixtureGrid():
     return all(mn <= xi <= mx for xi in x)
 
   @cacheprop
+  def mode_cov(self):
+    return np.identity(self.dimensionality) * self.stddev ** 2
+
+  @cacheprop
   def mode_height(self):
     return np.exp(self.logp(self.means[0]))
 
@@ -86,7 +90,10 @@ class GaussianMixtureGrid():
   def __repr__(self):
     return self.name
 
-  def mh_with_teleportation(self, initial_value, proposal, num_samples, teleprob=None, rejn=10000):
+  def mh(self, initial_value=None, proposal=None, num_samples=50000):
+    return self.mh_with_teleportation(initial_value, proposal, num_samples)
+
+  def mh_with_teleportation(self, initial_value=None, proposal=None, num_samples=50000, teleprob=None, rejn=10000, proposal_sd=None):
     self.iters = 0
 
     # Compute rejection samples in batches for efficiency
@@ -105,15 +112,24 @@ class GaussianMixtureGrid():
       self.rej_index += 1
       return value
 
+    # default telepprob is based on how efficiently we can rejection sample
+    if teleprob is None:
+      teleprob = len(self.rejection_sample_bounding_box(rejn)) / float(rejn)
+
+    if proposal is None:
+      if proposal_sd is None:
+        proposal_sd = self.stddev
+      cov = np.identity(self.dimensionality) * proposal_sd ** 2
+      proposal = lambda x: np.random.multivariate_normal(x, cov)
+
+    if initial_value is None:
+      initial_value = self.means[0]
+
     # initialize samples, starting point, and starting point log prob
     indexes = np.empty(num_samples)
     samples = np.empty((num_samples, initial_value.shape[0]))
     x1 = initial_value
     lp1 = self.logp(x1)
-
-    # default telepprob is based on how efficiently we can rejection sample
-    if teleprob is None:
-      teleprob = len(self.rejection_sample_bounding_box(rejn)) / float(rejn)
 
     # Metropolis-Hastings with teleportation inside the bounding box
     for i in range(num_samples):
