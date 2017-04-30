@@ -1,0 +1,5 @@
+Running mpi mcmc with teleportation
+Total number of samples 65536
+Number of nodes 8
+Merged Shape (8, 8192, 10)
+Elapsed Time 443.7

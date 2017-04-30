@@ -5,7 +5,7 @@ import itertools
 import scipy.misc
 import theano
 
-class cacheprop():
+class cacheprop(object):
   def __init__(self, getter): self.getter = getter
   def __get__(self, actual_self, _):
     value = self.getter(actual_self)
@@ -126,8 +126,8 @@ class GaussianMixtureGrid():
       initial_value = self.means[0]
 
     # initialize samples, starting point, and starting point log prob
-    indexes = np.empty(num_samples)
-    samples = np.empty((num_samples, initial_value.shape[0]))
+    indexes = np.empty(num_samples, dtype=np.int64)
+    samples = np.empty((num_samples, initial_value.shape[0]), dtype=np.float64)
     x1 = initial_value
     lp1 = self.logp(x1)
 
