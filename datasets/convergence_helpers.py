@@ -1,4 +1,5 @@
 import numpy as np
+from sklearn.linear_model import LinearRegression
 
 def moving_average(a):
   return np.cumsum(a) / np.arange(1,len(a)+1)
@@ -13,6 +14,15 @@ def joint_conv_trace(chains, grid):
   joint, index = join_chains(chains)
   means = grid.means.mean(axis=0)
   return index, convergence_trace(joint, means)
+
+def conv_fit(index, errors, cutoff=0.1, burnin=100):
+  start = np.argwhere(index > burnin)[0][0]
+  lg_ery = np.log10(errors[start:])
+  lg_idx = np.log10(index[start:]).reshape((len(lg_ery), 1))
+  lreg = LinearRegression()
+  lreg.fit(lg_idx, lg_ery)
+  score = lreg.score(lg_idx, lg_ery)
+  return lreg.coef_[0], lreg.intercept_, score
 
 def join_chains(chains):
   length = sum(len(c) for c, i in chains)

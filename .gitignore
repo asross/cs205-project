@@ -1,5 +1,7 @@
 __pycache__/
 .ipynb_checkpoints/
 
+datasets/*-16x.pkl
+
 # Mac Stuff
 .DS_Store
