@@ -19,7 +19,10 @@ helpers do
   def references
     {
       'wormhole' => 'Lan, Shiwei, Jeffrey Streets, and Babak Shahbaba. "Wormhole Hamiltonian Monte Carlo." Proceedings of the AAAI Conference on Artificial Intelligence. AAAI Conference on Artificial Intelligence. Vol. 2014. NIH Public Access, 2014.',
-      'topicmodes' => 'Roberts, Margaret, Brandon Stewart, and Dustin Tingley. "Navigating the local modes of big data: The case of topic models." 2015.'
+      'darting' => 'Ahn, Sungjin, Yutian Chen, and Max Welling. "Distributed and Adaptive Darting Monte Carlo through Regenerations." AISTATS. 2013.',
+      'topicmodes' => 'Roberts, Margaret, Brandon Stewart, and Dustin Tingley. "Navigating the local modes of big data: The case of topic models." 2015.',
+      'secondeig' => 'Haveliwala, Taher, and Sepandar Kamvar. The second eigenvalue of the Google matrix. Stanford, 2003.',
+      'convspeed' => 'Backåker, Fredrik. The Google Markov Chain: convergence speed and eigenvalues. Diss. Master Thesis, Uppsala University, Sweden, 2012.'
     }
   end
 
