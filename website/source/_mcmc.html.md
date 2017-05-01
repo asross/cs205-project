@@ -10,11 +10,16 @@ balance") holds, then the sample chain will converge to the true distribution.
 
 We can write out detailed balance as follows:
 
-$$ $$
+$$
+\frac{\text{prob of }x_1\to x_2}{\underbrace{\text{prob of }x_2\to x_1}_{\text{must eq. $s(x_1)/s(x_2)$}}} = \frac{p(x_1|x_2)s(x_1)}{\underbrace{p(x_2|x_1)}_{=\, p(x_1|x_2)}s(x_2)} = \underbrace{\frac{s(x_1)}{s(x_2)}}_{\text{balanced}}
+$$
 
-MCMC, as a local method, suffers with multimodality (or in general any
-non-convex density \\(s(x)\\)), as its local stepping can get stuck in local
-modes:
+Where we relied on using a symmetric proposal
+distribution\\(p(x)\\), though there are ways of using
+nonsymmetric proposals. Regardless, MCMC, as a local method,
+suffers with multimodality (or in general any non-convex
+density \\(s(x)\\)), as its local stepping can get stuck in
+local modes:
 
 ![something illustrating local modes](local-modes.png)
 
