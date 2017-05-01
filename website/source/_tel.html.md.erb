@@ -1,0 +1,27 @@
+Our main intuition is to simply linearly interpolate between rejection sampling
+and MCMC. There is related work (<%= cite 'wormhole' %>, <%= cite 'darting' %>)
+which attempts to (literally) bridge some of the gaps in MCMC, but to our
+knowledge, our particular method is novel -- though perhaps only because
+rejection sampling is tricky to set up and becomes inefficient so quickly.
+
+Nevertheless, in our method, during each Metropolis-Hastings step, we either
+sample from our proposal distribution with probability \\(1-\epsilon\\) (in
+which case we accept or reject using the normal MH acceptance probability) or
+we teleport to a new location obtained by rejection sampling with probability
+\\(\epsilon\\). It is straightforward to show that this scheme, expressed
+within the framework of normal Metropolis-Hastings, still satisfies detailed
+balance:
+
+$$
+$$
+
+Within this framework, setting \\(\epsilon=0\\) is exactly Metropolis-Hastings,
+while \\(\epsilon=1\\) is exactly rejection sampling. 
+
+What we would like to investigate is whether, by choosing an intermediate value
+for \\(\epsilon\\), we can obtain samples that allow us to reach convergence
+more quickly with better parallel scaling.
+
+We've animated the difference between \\(\epsilon=0\\) and \\(\epsilon=TODO\\) here:
+
+![anim](mcmc-tel-animation.gif)
