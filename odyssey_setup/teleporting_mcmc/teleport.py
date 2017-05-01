@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pyximport
 pyximport.install()
-import omptest
+import rejection_sample
 import pymc3 as pm
 import theano
 import time
@@ -18,8 +18,8 @@ EPISODES = 3 # an episode is one loop of rejection sampling and hmc
 for epi in range(EPISODES):
 	# rejection sampling
 	a = np.empty(N_SAMPLES_REJECTION, dtype=np.float64)
-	omptest.rejection_sample(N_SAMPLES_REJECTION, a)
-	
+	rejection_sample.normal(N_SAMPLES_REJECTION, a)
+
 	# pass a rejection sampling guided initialization to pymc3
 	warm_start = a[-1]
 
@@ -35,10 +35,5 @@ for epi in range(EPISODES):
 runtime = time.clock() - t0
 print("runtime for %i pymc3 workers = %0.3f" % (N_JOBS, runtime))
 
-plt.hist(super_trace)
+plt.hist(super_trace, bins=100)
 plt.show()
-
-
-
-
-
