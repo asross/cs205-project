@@ -1,1 +1,1 @@
-This is _markdown_. With \\(LaTeX\\).
+Talk about motivation, example problems, etc. Big science.

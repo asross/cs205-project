@@ -13,6 +13,11 @@ within the framework of normal Metropolis-Hastings, still satisfies detailed
 balance:
 
 $$
+\frac{\text{prob of }x_1\to x_2}{\underbrace{\text{prob of }x_2\to x_1}_{\text{must eq. $s(x_1)/s(x_2)$}}} = \frac{(1-\epsilon)p(x_1|x_2)s(x_1) + (\epsilon) s(x_1)}{\underbrace{(1-\epsilon)p(x_2|x_1)s(x_2)}_{\text{proposal}} + \underbrace{(\epsilon) s(x_2)}_{\text{teleport}}} = \frac{
+    \big(p(x_1|x_2)(1-\epsilon) + \epsilon\big)s(x_1)
+}{
+  \big( \underbrace{p(x_2|x_1)}_{=\, p(x_1|x_2)}(1-\epsilon) + \epsilon\big) s(x_2)
+  } = \underbrace{\frac{s(x_1)}{s(x_2)}}_{\text{balanced}}
 $$
 
 Within this framework, setting \\(\epsilon=0\\) is exactly Metropolis-Hastings,
