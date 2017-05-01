@@ -16,49 +16,57 @@ size = comm.Get_size()   # Size of communicator
 rank = comm.Get_rank()   # Rank in communicator
 
 #############################################################
+N_SAMPLES = 2**16
+N_JOBS = 4
+N_SAMPLES_PER_MPI_NODE = N_SAMPLES / size
+N_SAMPLES_PER_OMP_THREAD = N_SAMPLES_PER_MPI_NODE / N_JOBS
+CHAIN_LENGTH = 64 #inverse of teleportation frequency
+N_SAMPLES_REJECTION = N_SAMPLES_PER_OMP_THREAD / CHAIN_LENGTH
+
 if rank == 0:
     start_time = time.clock()
-    print "Running mpi mcmc with teleportation"
+    print "Running mpi+omp mcmc with teleportation"
     print "Total number of samples", N_SAMPLES
-    print "Number of nodes", size
+    print "Number of MPI nodes", size
+    print "Number of OMP threads", N_JOBS
+    print "Chain length", CHAIN_LENGTH
 
-N_JOBS = 4
-N_SAMPLES_PYMC3 = 50000 / N_JOBS
-N_SAMPLES_REJECTION = 1000
+#initialize random seed (otherwise each node will generate same samples)
+rejection_sample.random_seed(rank)
+
+# rejection sampling with OpenMP
+print "Starting Rejection Sampling"
+rejection_samples = np.empty(N_SAMPLES_REJECTION, dtype=np.float64)
+rejection_sample.normal(N_SAMPLES_REJECTION, rejection_samples)
+
+# array to store samples
 super_trace = []
-EPISODES = 3 # an episode is one loop of rejection sampling and hmc
-N_SAMPLES_PER_PROCESSOR = (N_SAMPLES_PYMC3 * N_JOBS + N_SAMPLES_REJECTION) * EPISODES
 
-for epi in range(EPISODES):
-	# rejection sampling
-	a = np.empty(N_SAMPLES_REJECTION, dtype=np.float64)
-	rejection_sample.normal(N_SAMPLES_REJECTION, a)
+print "Starting MCMC"
+# MCMC
+for cycle, warm_start in enumerate(rejection_samples):
+  # pass a rejection sampling guided initialization to pymc3
+  model = pm.Model()
+  with model:
+    mu1 = pm.Normal("mu1", mu=0, sd=1, shape=1, testval=warm_start)
+    trace = pm.sample(CHAIN_LENGTH, step=pm.NUTS(), progressbar=False, njobs=N_JOBS)
+  super_trace.extend(trace[:]["mu1"].ravel())
 
-	# pass a rejection sampling guided initialization to pymc3
-	warm_start = a[-1]
-
-	# pymc3
-	model = pm.Model()
-	with model:
-	    mu1 = pm.Normal("mu1", mu=0, sd=1, shape=1, testval=warm_start)
-	    trace = pm.sample(N_SAMPLES_PYMC3, step=pm.NUTS(), njobs=N_JOBS)
-
-	super_trace.extend(a)
-	super_trace.extend(trace[:]['mu1'].ravel())
-
+#convert to np array for MPI
 super_trace = np.array(super_trace)
 
+print "Merging Samples", super_trace.shape
 #Gather results to node 0
 all_samples = None
 if rank == 0:
-    all_samples = np.empty([size, N_SAMPLES_PER_PROCESSOR], dtype = np.float64)
+    all_samples = np.empty([size, N_SAMPLES_PER_MPI_NODE], dtype = np.float64)
 
 comm.Gather(super_trace, all_samples, root=0)
 
 #Write samples to npy file
 if rank == 0:
     print "Merged Shape", all_samples.shape
-    np.save("samples{}d{}processors{}jobs.npy".format(N_DIM, size, N_JOBS), all_samples)
+    np.save("samples1d{}processors{}jobs.npy".format(size, N_JOBS), all_samples)
     print "Elapsed Time", time.clock() - start_time
 
 MPI.Finalize()
