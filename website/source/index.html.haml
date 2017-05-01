@@ -1,0 +1,146 @@
+.header
+  %section#header.background
+    %h1
+      CS205 Final Project: Teleporting Parallel MCMC
+      %br
+      %small
+        Laith Alhussein, Nathaniel Burbank, Shawn Pan, Andrew Ross, and Rohan Thavarajah
+
+.col-md-9
+  %section#intro
+    %h2 Introduction
+    = partial 'intro'
+    %hr
+
+  %section#theory
+    %h2 Theory
+    .temporary-spacer
+    %hr
+
+    %section#theory-mcmc
+      %h4 Markov-Chain Monte Carlo
+      .temporary-spacer
+      %hr
+
+    %section#theory-ergo
+      %h4 Ergodicity and Parallelism
+      .temporary-spacer
+      %hr
+
+    %section#theory-page
+      %h4 PageRank
+      .temporary-spacer
+      %hr
+
+    %section#theory-rej
+      %h4 Rejection Sampling
+      .temporary-spacer
+      %hr
+
+    %section#theory-tel
+      %h4 Teleporting MCMC
+      .temporary-spacer
+      %hr
+
+    %section#theory-temp
+      %h4 Parallel Tempering
+      .temporary-spacer
+      %hr
+
+  %section#impl
+    %h2 Implementation
+    .temporary-spacer
+    %hr
+
+    %section#impl-ser
+      %h4 Serial
+      .temporary-spacer
+      %hr
+
+    %section#impl-mpi
+      %h4 MPI and OpenMP
+      .temporary-spacer
+      %hr
+
+    %section#impl-data
+      %h4 Datasets
+      .temporary-spacer
+      %hr
+
+    %section#impl-conv
+      %h4 Convergence
+      .temporary-spacer
+      %hr
+
+  %section#results
+    %h2 Results
+    .temporary-spacer
+    %hr
+
+    %section#results-scaling
+      %h4 Scaling vs. \(\epsilon\)
+      .temporary-spacer
+      %hr
+
+    %section#results-odyssey
+      %h4 Speedups on Odyssey
+      .temporary-spacer
+      %hr
+
+  %section#conclusion
+    %h2 Conclusion
+    .temporary-spacer
+    %hr
+
+  %section#refs
+    %h2 References
+    = render_references
+
+.col-md-3
+  .sidebar.scrollspy
+    %ul.nav#nav
+      %li
+        %a{href: '#intro'} Introduction
+      %li
+        %a{href: '#theory'} Theory
+        %ul.nav
+          %li
+            %a{href: '#theory-mcmc'} Foo
+          %li
+            %a{href: '#theory-ergo'} Foo
+          %li
+            %a{href: '#theory-page'} Foo
+          %li
+            %a{href: '#theory-rej'} Foo
+          %li
+            %a{href: '#theory-tel'} Foo
+          %li
+            %a{href: '#theory-temp'} Foo
+      %li
+        %a{href: '#impl'} Implementation
+        %ul.nav
+          %li
+            %a{href: '#impl-ser'} Foo
+          %li
+            %a{href: '#impl-mpi'} Foo
+          %li
+            %a{href: '#impl-data'} Foo
+          %li
+            %a{href: '#impl-conv'} Foo
+      %li
+        %a{href: '#results'} Results
+        %ul.nav
+          %li
+            %a{href: '#results-scaling'} Foo
+          %li
+            %a{href: '#results-odyssey'} Foo
+      %li
+        %a{href: '#conclusion'} Conclusion
+      %li
+        %a{href: '#refs'} References
+
+.container
+  .col-md-12.footer
+    Laith Alhussein, Nathaniel Burbank, Shawn Pan, Andrew Ross, and Rohan Thavarajah. CS205 Spring 2017.
+    %br
+    = link_to 'GitHub Repository', 'https://github.com/asross/cs205-project'
