@@ -6,5 +6,8 @@ website/.env
 
 datasets/*-16x.pkl
 
+*.pyc
+*.pyxbldc
+
 # Mac Stuff
 .DS_Store
