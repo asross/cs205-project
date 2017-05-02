@@ -3,6 +3,7 @@ from cython.parallel import prange
 import numpy as np
 cimport numpy as np
 from libc.stdlib cimport rand, srand, RAND_MAX
+from posix.stdlib cimport rand_r
 #note: we must rename the c math functions. Otherwise, it appears that
 #the python version is used and the program hangs/deadlocks with no
 #error message when run without GIL
@@ -14,12 +15,12 @@ cdef double TWOPI = 2 * M_PI
 cdef double ISQRTTWOPI = 1.0 / c_sqrt(TWOPI)
 
 #random double in 0 to 1 range
-cdef inline double rand_uniform() nogil:
-	return float(rand()) / RAND_MAX
+cdef inline double rand_uniform(unsigned int* seed) nogil:
+	return float(rand_r(seed)) / RAND_MAX
 
 #random double in given range
-cdef inline double rand_double(double min_value, double max_value) nogil:
-	return (max_value - min_value) * rand_uniform() + min_value
+cdef inline double rand_double(unsigned int* seed, double min_value, double max_value) nogil:
+	return (max_value - min_value) * rand_uniform(seed) + min_value
 
 #log pdf of normal without normalization constant (MCMC only cares about ratio)
 cdef inline double log_normal_pdf(double x, double mu, double sigma) nogil:
@@ -33,15 +34,15 @@ cdef inline double normal_pdf(double x, double mu, double sigma) nogil:
 #random sample from normal(0, 1)
 #see https://en.wikipedia.org/wiki/Box%E2%80%93Muller_transform
 #note this is slightly wasteful as it only uses one of the 2 values
-cdef double rand_normal() nogil:
+cdef double rand_normal(unsigned int* seed) nogil:
 	cdef:
 		int i1
 		double u1, u2
 	i1 = 0
 	while i1 == 0: #catch the edgecase of log 0
-		i1 = rand()
-	u1 = float(rand()) / RAND_MAX
-	u2 = rand_uniform()
+		i1 = rand_r(seed)
+	u1 = float(i1) / RAND_MAX
+	u2 = rand_uniform(seed)
 	return c_sqrt(-2.0 * c_log(u1)) * c_cos(TWOPI * u2)
 
 ############################################################################
@@ -77,9 +78,11 @@ cpdef void random_seed(unsigned int seed):
 @boundscheck(False)
 @wraparound(False)
 cpdef void normal_bm(int n_samples, np.float64_t[:] samples) nogil:
-	cdef int i
+	cdef:
+		int i
+		unsigned int seed = 0
 	for i in prange(n_samples, schedule="guided"):
-		samples[i] = rand_normal()
+		samples[i] = rand_normal(&seed)
 
 #parallel rejection sample on gaussian mixture
 #inputs: number of samples and an empty numpy array to store results
@@ -89,12 +92,16 @@ cpdef void rejection(int n_samples, np.float64_t[:] samples) nogil:
 	cdef:
 		double x, y, z
 		int i, reject
+		unsigned int seed
 
 	for i in prange(n_samples, schedule="guided"):
+		#random seed
+		seed = i
+		#rejection sample
 		reject = 1
 		while reject:
-			x = rand_double(BOUND_LEFT, BOUND_RIGHT)
-			y = rand_double(0, MODE_HEIGHT)
+			x = rand_double(&seed, BOUND_LEFT, BOUND_RIGHT)
+			y = rand_double(&seed, 0, MODE_HEIGHT)
 			z = pdf(x)
 			reject = y > z
 		samples[i] = x
@@ -111,20 +118,23 @@ cpdef void metropolis(int n_starts, int n_samples, np.float64_t[:,:] samples) no
 		double x, xc, lpx, lpxc
 		double y, z
 		int i, j, reject
+		unsigned int seed
 	for i in prange(n_starts, schedule="guided"):
+		#random seed
+		seed = i
 		#rejection sample to start chain
 		reject = 1
 		while reject:
-			x = rand_double(BOUND_LEFT, BOUND_RIGHT)
-			y = rand_double(0, MODE_HEIGHT)
+			x = rand_double(&seed, BOUND_LEFT, BOUND_RIGHT)
+			y = rand_double(&seed, 0, MODE_HEIGHT)
 			z = pdf(x)
 			reject = y > z
 		lpx = logp(x)
 		#metropolis-hastings
 		for j in range(n_samples):
-			xc = x + SIGMA * rand_normal()
+			xc = x + SIGMA * rand_normal(&seed)
 			lpxc = logp(xc)
-			if rand_uniform() < c_exp(lpxc - lpx):
+			if rand_uniform(&seed) < c_exp(lpxc - lpx):
 				x = xc
 				lpx = lpxc
 			samples[i,j] = x
