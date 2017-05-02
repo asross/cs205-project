@@ -20,7 +20,8 @@ CHAIN_LENGTH = 2**6 #inverse of teleportation frequency
 N_CHAINS = N_SAMPLES_PER_MPI_NODE / CHAIN_LENGTH
 
 if rank == 0:
-    start_time = time.clock()
+    #intentionally using wall clock to avoid overcounting OMP threads
+    start_time = time.time()
     print "Running mpi+omp mcmc with teleportation"
     print "Total number of samples", N_SAMPLES
     print "Number of MPI nodes", size
@@ -29,15 +30,10 @@ if rank == 0:
 #initialize random seed (otherwise each node will generate same samples)
 sample.random_seed(rank)
 
-# parallel rejection sampling with OpenMP
-print "Starting Rejection Sampling", rank
-starts = np.empty(N_CHAINS, dtype=np.float64)
-sample.rejection(N_CHAINS, starts)
-
-# parallel MCMC sampling with OpenMP
-print "Starting MCMC", rank
+# parallel rejection/MCMC sampling with OpenMP
+print "Sampling", rank
 samples = np.empty((N_CHAINS, CHAIN_LENGTH), dtype=np.float64)
-sample.metropolis(N_CHAINS, CHAIN_LENGTH, starts, samples)
+sample.metropolis(N_CHAINS, CHAIN_LENGTH, samples)
 samples = samples.flatten("F")
 
 print "Merging Samples", rank
@@ -52,6 +48,6 @@ comm.Gather(samples, all_samples, root=0)
 if rank == 0:
     all_samples = all_samples.flatten("F")
     np.save("samples1d{}mpinodes.npy".format(size), all_samples)
-    print "Elapsed Time", time.clock() - start_time
+    print "Elapsed Time", time.time() - start_time
 
 MPI.Finalize()

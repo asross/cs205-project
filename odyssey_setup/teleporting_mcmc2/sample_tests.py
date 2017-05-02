@@ -29,10 +29,8 @@ plt.show()
 #Test Metropolis Hastings
 N_CHAINS = 100
 SAMPLES_PER_CHAIN = N_SAMPLES / N_CHAINS
-starts = np.empty(N_CHAINS, dtype=np.float64)
-sample.rejection(N_CHAINS, starts)
 samples = np.empty((N_CHAINS, SAMPLES_PER_CHAIN), dtype=np.float64)
-sample.metropolis(N_CHAINS, SAMPLES_PER_CHAIN, starts, samples)
+sample.metropolis(N_CHAINS, SAMPLES_PER_CHAIN, samples)
 
 plt.figure()
 plt.hist(samples.flatten(), bins=100)
