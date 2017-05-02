@@ -20,7 +20,8 @@ CHAIN_LENGTH = 2**6 #inverse of teleportation frequency
 N_CHAINS = N_SAMPLES_PER_MPI_NODE / CHAIN_LENGTH
 
 if rank == 0:
-    start_time = time.clock()
+    #intentionally using wall clock to avoid overcounting OMP threads
+    start_time = time.time()
     print "Running mpi+omp mcmc with teleportation"
     print "Total number of samples", N_SAMPLES
     print "Number of MPI nodes", size
@@ -47,6 +48,6 @@ comm.Gather(samples, all_samples, root=0)
 if rank == 0:
     all_samples = all_samples.flatten("F")
     np.save("samples1d{}mpinodes.npy".format(size), all_samples)
-    print "Elapsed Time", time.clock() - start_time
+    print "Elapsed Time", time.time() - start_time
 
 MPI.Finalize()
