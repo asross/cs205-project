@@ -69,7 +69,7 @@ GEM
     http_parser.rb (0.6.0)
     i18n (0.7.0)
     ipaddress (0.8.0)
-    json (1.8.3)
+    json (1.8.6)
     kramdown (1.8.0)
     listen (3.0.3)
       rb-fsevent (>= 0.9.3)
@@ -186,4 +186,4 @@ DEPENDENCIES
   wdm (~> 0.1.0)
 
 BUNDLED WITH
-   1.10.6
+   1.14.6
