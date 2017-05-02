@@ -3,6 +3,12 @@
 Laith Alhussein, Nathaniel Burbank, Shawn Pan, Andrew Ross, and Rohan
 Thavarajah
 
+## NOTE!
+
+We've moved our project website! It's now at [http://teleporting-parallel-mcmc.s3-website-us-east-1.amazonaws.com](http://teleporting-parallel-mcmc.s3-website-us-east-1.amazonaws.com/).
+
+The rest of this is now old, but you can still read if you like:
+
 ## Background
 
 Markov Chain Monte Carlo (MCMC) is a statistical method that allows us to draw
