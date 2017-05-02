@@ -1,0 +1,13 @@
+PageRank <%= cite 'pagerank' %> is an enormously successful MCMC algorithm that determines a sensical ordering of the popularity of pages on the web. It essentially operates by doing a random walk over the entire web and ranking pages based on how often, relatively, they are visited.
+
+The issue is that there are disconnected subgraphs in the web -- which are kind of like a discrete analogue to multimodality or non-convexity in a probability distribution. This means that the standard method for running MCMC over discrete graphs, the power iteration (which essentially just extracts eigenvalues corresponding to the final ranks via a series of matrix multiplications -- almost a classic parallel algorithm), doesn't work. The transition matrix is singular. PageRank resolves this by adding a small "teleportation" term which essentially adds a chance of jumping to an entirely random page at any point in the random walk. Schematically, this can be illustrated as follows:
+
+![pr1](pagerank-mat.png)
+
+Or in graph form:
+
+![pr1](pagerank-graph.png)
+
+The resulting matrix is no longer singular, although its condition number will be high and convergence will be slow if \\(\epsilon\\) is too small (see <%= cite 'convspeed' %> and <%= cite 'secondeig' %>). If \\(\epsilon\\) is too high, then the distribution becomes uniform and the distinction between pages blurs. But there is a happy medium where the problem is well-conditioned, converges quickly, and the results provide a meaningful ranking of pages.
+
+This simple discrete example has close conceptual connections to our approach on sampling. Instead of a discrete but disconnected graph, we have a multimodal probability distribution, and again we speed up the inherent convergence properties of our MCMC algorithm by adding a small probability of teleportation everywhere. Unlike PageRank, increasing \\(\epsilon\\) does not change the distribution, because our teleportation uses rejection samples from the probability distribution itself, but it does come at the cost of a computationally inefficient process to obtain the next rejection sample. This problem is of interest in this class in particular because our tradeoff also involves a change in the parallel scaling behavior of the algorithm.

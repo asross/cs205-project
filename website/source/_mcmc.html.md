@@ -15,5 +15,5 @@ $$
 $$
 
 Where we relied on using a symmetric proposal
-distribution\\(p(x)\\), though there are ways of using
+distribution \\(p(x)\\), though there are ways of using
 non-symmetric proposals.
