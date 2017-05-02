@@ -5,7 +5,7 @@ sampling from a symmetric proposal distribution \\(p(x)\\). You then either
 move there or stay put, and add your current location to the sample chain. The
 important point is that the ratio of probability of transitioning from
 \\(x_1\\) to \\(x_2\\) and back again must equal the ratio of the target
-densities \\(s(x_1)\\) and \\(s(x_2)\\). If that condition (called "detailed
+densities \\(s(x_1)\\) and \\(s(x_2)\\). If this condition (called "detailed
 balance") holds, then the sample chain will converge to the true distribution.
 
 We can write out detailed balance as follows:
@@ -21,13 +21,13 @@ suffers with multimodality (or in general any non-convex
 density \\(s(x)\\)), as its local stepping can get stuck in
 local modes:
 
-![something illustrating local modes](local-modes.png)
+![something illustrating local modes](mh-trace.png)
 
 These results are for Metropolis-Hastings, which is a relatively simple MCMC
 technique, but even Hamiltonian Monte Carlo, the state of the art, gets stuck
 in similar ways:
 
-![something illustrating local modes for HMC](hmc-local-modes.png)
+![something illustrating local modes for HMC](HMC-trace.png)
 
 The crux of the problem is that for MCMC to converge, the underlying
 distribution must be _ergodic_. Ergodicity is a complex concept but it
