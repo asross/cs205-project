@@ -7,10 +7,10 @@ rejection sampling is tricky to set up and becomes inefficient so quickly.
 Nevertheless, in our method, during each Metropolis-Hastings step, we either
 sample from our proposal distribution with probability \\(1-\epsilon\\) (in
 which case we accept or reject using the normal MH acceptance probability) or
-we teleport to a new location obtained by rejection sampling with probability
+we “teleport” to a new location obtained by rejection sampling with probability
 \\(\epsilon\\). It is straightforward to show that this scheme, expressed
-within the framework of normal Metropolis-Hastings, still satisfies detailed
-balance:
+within the framework of traditional Metropolis-Hastings, still satisfies the detailed
+balance criteria:
 
 $$
 \frac{\text{prob of }x_1\to x_2}{\underbrace{\text{prob of }x_2\to x_1}_{\text{must eq. $s(x_1)/s(x_2)$}}} = \frac{(1-\epsilon)p(x_1|x_2)s(x_1) + (\epsilon) s(x_1)}{\underbrace{(1-\epsilon)p(x_2|x_1)s(x_2)}_{\text{proposal}} + \underbrace{(\epsilon) s(x_2)}_{\text{teleport}}} = \frac{
@@ -27,6 +27,6 @@ What we would like to investigate is whether, by choosing an intermediate value
 for \\(\epsilon\\), we can obtain samples that allow us to reach convergence
 more quickly with better parallel scaling.
 
-We've animated the difference between \\(\epsilon=0\\) and \\(\epsilon=TODO\\) here:
+We've animated the difference between \\(\epsilon=0\\) and \\(\epsilon=.0334\\) here:
 
 ![anim](mcmc-tel-animation.gif)
