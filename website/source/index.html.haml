@@ -52,24 +52,28 @@
       = partial 'datasets'
       %hr
 
-    %section#impl-conv
-      %h4 Convergence
-      = partial 'convergence'
-      %hr
-
   %section#results
     %h2 Results
-    .temporary-spacer
     %hr
+
+    %section#results-whichbest
+      %h4 Which Method is Best?
+      = partial 'whichbest'
+      %hr
 
     %section#results-scaling
       %h4 Scaling vs. \(\epsilon\)
-      .temporary-spacer
+      = partial 'scaling'
       %hr
 
     %section#results-odyssey
       %h4 Speedups on Odyssey
       .temporary-spacer
+      %hr
+
+    %section#results-conv
+      %h4 Convergence
+      = partial 'convergence'
       %hr
 
   %section#conclusion
