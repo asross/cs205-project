@@ -102,18 +102,25 @@ cpdef void rejection(int n_samples, np.float64_t[:] samples) nogil:
 #parallel metropolis-hastings on gaussian mixture
 #n_starts: number of chains
 #n_samples: number of samples per chain
-#starts: np array of starts
 #samples: n_starts x n_samples array to store results
 @boundscheck(False)
 @wraparound(False)
-cpdef void metropolis(int n_starts, int n_samples, np.float64_t[:] starts, np.float64_t[:,:] samples) nogil:
+cpdef void metropolis(int n_starts, int n_samples, np.float64_t[:,:] samples) nogil:
 	cdef:
 		#x value, candidate x value, and corresponding log probabilties
 		double x, xc, lpx, lpxc
-		int i, j
-	for i in prange(n_starts):
-		x = starts[i]
+		double y, z
+		int i, j, reject
+	for i in prange(n_starts, schedule="guided"):
+		#rejection sample to start chain
+		reject = 1
+		while reject:
+			x = rand_double(BOUND_LEFT, BOUND_RIGHT)
+			y = rand_double(0, MODE_HEIGHT)
+			z = pdf(x)
+			reject = y > z
 		lpx = logp(x)
+		#metropolis-hastings
 		for j in range(n_samples):
 			xc = x + SIGMA * rand_normal()
 			lpxc = logp(xc)

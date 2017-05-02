@@ -29,15 +29,10 @@ if rank == 0:
 #initialize random seed (otherwise each node will generate same samples)
 sample.random_seed(rank)
 
-# parallel rejection sampling with OpenMP
-print "Starting Rejection Sampling", rank
-starts = np.empty(N_CHAINS, dtype=np.float64)
-sample.rejection(N_CHAINS, starts)
-
-# parallel MCMC sampling with OpenMP
-print "Starting MCMC", rank
+# parallel rejection/MCMC sampling with OpenMP
+print "Sampling", rank
 samples = np.empty((N_CHAINS, CHAIN_LENGTH), dtype=np.float64)
-sample.metropolis(N_CHAINS, CHAIN_LENGTH, starts, samples)
+sample.metropolis(N_CHAINS, CHAIN_LENGTH, samples)
 samples = samples.flatten("F")
 
 print "Merging Samples", rank
