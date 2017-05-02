@@ -1,15 +1,12 @@
-##### Mixture of Gaussians
-
-A natural model to compare sampling methods on is a mixture of Gaussians. These
-distributions are naturally multimodal, but their full distribution is known
+The model we chose to run our experiments against is the Gaussian mixture model.
+This distribution is naturally multimodal, but analytically tractable
 and easy to sample from, so we can easily evaluate a number of exact rather
-than approximate convergence metrics. We can also vary the parameters of the
-mixture (i.e. the proximity and width of each mode as well as the number of
-modes and dimensions) and evaluate how our convergence metrics differ under
-these conditions.
+than approximate convergence metrics:
 
 ![GMM](pdf-and-log-pdf.png)
 
-##### Noisy Sensors
+We implemented a [parameterized class](https://github.com/asross/cs205-project/blob/master/datasets/gaussian_mixture_grid.py) to generate Gaussian mixtures with varying dimensions, spacing, variance, and mode count:
 
-##### Topic Models
+![GMM2](gmixgrid.png)
+
+This gives us the flexibility to increase the multimodality and variance of our distribution while keeping the distribution tractable enough to accurately assess convergence.
