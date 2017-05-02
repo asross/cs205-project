@@ -1,0 +1,13 @@
+#!/bin/bash 
+
+#SBATCH -p holyseasgpu  #Partition to submit to 
+#SBATCH -n 1  #Number of cores 
+#SBATCH --gres=gpu
+#SBATCH -t 10  #Runtime in minutes
+#SBATCH --mem-per-cpu=500
+
+gcc -o serial serial.c -lm
+
+./serial 100000000 > "out-serial.txt"
+
+
