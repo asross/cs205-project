@@ -10,7 +10,7 @@ img {
   max-width: 100%;
 }
 
-#results-whichbest img:first-of-type {
+#results-whichbest img:first-of-type, #impl-mpi img {
   max-height: none;
 }
 
