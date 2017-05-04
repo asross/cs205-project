@@ -1,7 +1,9 @@
-The model we chose to run our experiments against is the Gaussian mixture model.
-This distribution is naturally multimodal, but analytically tractable
-and easy to sample from, so we can easily evaluate a number of exact rather
-than approximate convergence metrics:
+The model we chose to run our experiments against is the Gaussian mixture
+model.  This problem is synthetic rather than real-world, but it has the
+advantage of being analytically tractable and easy to sample from, so we can
+easily evaluate a number of exact rather than approximate convergence metrics.
+We describe a major real-world application [later on](#relwork-sens). Here are contour plots
+of the density of a 2D, 3x3 Gaussian mixture grid:
 
 ![GMM](pdf-and-log-pdf.png)
 

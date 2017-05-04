@@ -29,9 +29,12 @@ we “teleport” to a new location obtained by rejection sampling with probabil
   <strong>return</strong> samples
 </div>
 
-It is straightforward to show that this scheme, expressed
-within the framework of traditional Metropolis-Hastings, still satisfies the detailed
-balance criteria:
+In practice, we also return an array of the attempt indexes at which we
+accepted each sample in order to measure convergence at any iteration.
+
+It is straightforward to show that this scheme, expressed within the framework
+of traditional Metropolis-Hastings, still satisfies the detailed balance
+criteria:
 
 $$
 \frac{\text{prob of }x_1\to x_2}{\underbrace{\text{prob of }x_2\to x_1}_{\text{must eq. $s(x_1)/s(x_2)$}}} = \frac{(1-\epsilon)p(x_1|x_2)s(x_1) + (\epsilon) s(x_1)}{\underbrace{(1-\epsilon)p(x_2|x_1)s(x_2)}_{\text{proposal}} + \underbrace{(\epsilon) s(x_2)}_{\text{teleport}}} = \frac{
@@ -41,8 +44,9 @@ $$
   } = \underbrace{\frac{s(x_1)}{s(x_2)}}_{\text{balanced}}
 $$
 
-Within this framework, setting \\(\epsilon=0\\) is exactly Metropolis-Hastings,
-while \\(\epsilon=1\\) is exactly rejection sampling. 
+Note also that setting \\(\epsilon=0\\) is exactly Metropolis-Hastings, while
+\\(\epsilon=1\\) is exactly rejection sampling; we are linearly interpolating
+between the two methods.
 
 What we would like to investigate is whether, by choosing an intermediate value
 for \\(\epsilon\\), we can obtain samples that allow us to reach convergence

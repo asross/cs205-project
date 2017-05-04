@@ -26,7 +26,10 @@ helpers do
       'topicmodes' => 'Roberts, Margaret, Brandon Stewart, and Dustin Tingley. "Navigating the local modes of big data: The case of topic models." 2015.',
       'secondeig' => 'Haveliwala, Taher, and Sepandar Kamvar. The second eigenvalue of the Google matrix. Stanford, 2003.',
       'convspeed' => 'Backåker, Fredrik. The Google Markov Chain: convergence speed and eigenvalues. Diss. Master Thesis, Uppsala University, Sweden, 2012.',
-      'pagerank' => 'Page, Lawrence, et al. The PageRank citation ranking: Bringing order to the web. Stanford InfoLab, 1999.'
+      'pagerank' => 'Page, Lawrence, et al. The PageRank citation ranking: Bringing order to the web. Stanford InfoLab, 1999.',
+      'tempering' => 'Radford M. Neal (1996). "Sampling from multimodal distributions using tempered transitions". Statistics and Computing. 6 (4): 353–366.',
+      'restarts' => 'Barrett, Leon, and Aleksandr Simma. "MCMC With Disconnected State Spaces." (2005).',
+      'hmc' => 'Neal, Radford M. "MCMC using Hamiltonian dynamics." Handbook of Markov Chain Monte Carlo 2 (2011): 113-162.'
     }
   end
 

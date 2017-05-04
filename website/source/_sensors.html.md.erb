@@ -1,0 +1,49 @@
+One real-world application to which we can directly apply our method is sensor
+localization, which is discussed by both <%= cite 'wormhole' %> and
+<%= cite 'darting' %>.
+
+The setup for this problem is as follows. Assume we have a collection of \\(N\\) sensors
+with 2D or 3D locations \\(\vec{x}_k\\) which noisily attempt to communicate with each
+other. For any pair of sensors \\(i\\) and \\(j\\), there is an exponentially decreasing
+probability they can communicate at all, indicated by
+
+$$
+Z_{ij} \sim \text{Bern}\left(\exp\left(\frac{-||\vec{x}_i - \vec{x}_j||^2}{2R^2}\right)\right)
+$$
+
+Assuming \\(Z_{ij} = 1\\), i.e. that they _do_ manage to communicate, they transmit a noisy
+measurement of their distance
+
+$$
+Y_{ij}|(Z_{ij} = 1) \sim \mathcal{N}\left(||\vec{x}_i - \vec{x}_j||, \sigma^2\right)
+$$
+
+where \\(R\\) and \\(\sigma\\) are known sensor parameters. The total
+probability of observing our data \\(Y\\) and \\(Z\\) given our locations
+\\(\vec{x}\\) is just the product of all of these terms for each \\(i, j\\)
+pair.
+
+In general we are interested in the reverse problem; we have the measurement
+data but do not know the sensor locations. However, assuming a uniform prior on
+the sensor locations, the probability of the locations given the data is
+proportional to the probability of the data given the locations. For both MCMC
+and rejection sampling, this is enough; we do not need to know the normalizing
+constant of our distribution, just its relative density at each location.
+
+In general (as you might imagine), the resulting posterior distributions of sensor
+locations given measurement data are often multimodal, sometimes with many different
+modes for each sensor. In the case below, which is for \\(N=8\\) on a 2D grid (with
+three extra sensors with known locations, to resolve mirror symmetry ambiguities),
+we have a 16-dimensional posterior distribution of the \\(x,y\\) locations of each
+sensor, whose marginals are projected onto a 2D plane (with true locations represented
+as circles):
+
+![noisysensor](noisysensor.png)
+
+As you can see, there is true multimodality to this real-world problem, with
+multiple valid hypotheses for the locations of many sensors, which, as <%= cite 'wormhole' %>
+shows, many state of the art MCMC methods fail to adequately
+capture. Given additional time, it would be straightforward to apply our method
+to this problem, and we believe it could be competitive with the algorithms
+presented in <%= cite 'wormhole' %> and <%= cite 'darting' %>, especially if
+\\(\epsilon\\) is tuned to optimize parallel resources.
