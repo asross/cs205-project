@@ -19,7 +19,7 @@ we “teleport” to a new location obtained by rejection sampling with probabil
       <strong>repeat</strong> {
         \(x, y\) \(\sim\) box enclosing \(s\)
         attempts++
-      } <strong>until</strong> \(s(x)\) < \(y\)
+      } <strong>until</strong> y < \(s(x)\)
       samples.add(\(x\))
     <strong>else</strong>:
       \(x_{1}\) = previous sample

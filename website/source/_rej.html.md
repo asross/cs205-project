@@ -10,7 +10,7 @@ With psuedocode:
   samples = []
   <strong>for</strong> attempt <strong>in</strong> 1...N:
     \(x, y\) \(\sim\) box enclosing \(s\)
-    <strong>if</strong> \(s(x)\) < \(y\):
+    <strong>if</strong> \(y\) < \(s(x)\):
       samples.add(\(x\))
   <strong>return</strong> samples
 </div>
