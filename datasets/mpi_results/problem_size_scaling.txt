@@ -1,0 +1,35 @@
+==> results12.out <==
+Running mpi mcmc with teleportation
+Total number of samples 4096
+Number of nodes 32
+Merged Shape (32, 128, 10)
+Elapsed Time 17.01
+
+==> results14.out <==
+Running mpi mcmc with teleportation
+Total number of samples 16384
+Number of nodes 32
+Merged Shape (32, 512, 10)
+Elapsed Time 37.4
+
+==> results16.out <==
+Running mpi mcmc with teleportation
+Total number of samples 65536
+Number of nodes 32
+Merged Shape (32, 2048, 10)
+Elapsed Time 137.06
+
+==> results18.out <==
+Running mpi mcmc with teleportation
+Total number of samples 262144
+Number of nodes 32
+Merged Shape (32, 8192, 10)
+Elapsed Time 519.89
+
+==> results20.out <==
+Running mpi mcmc with teleportation
+Total number of samples 1048576
+Number of nodes 32
+Merged Shape (32, 32768, 10)
+Elapsed Time 2217.86
+

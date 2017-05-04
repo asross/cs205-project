@@ -1,10 +1,12 @@
-First, using MPI (code [here](https://github.com/asross/cs205-project/blob/master/odyssey_setup/mpi_mcmc/mpi_mcmc.py), we find we are able to run many, many parallel chains (up to 128) simultaneously, achieving strong scaling:
+First, using MPI (code [here](https://github.com/asross/cs205-project/blob/master/odyssey_setup/mpi_mcmc/mpi_mcmc.py), we find we are able to run many, many parallel chains (up to 128) simultaneously. Our results show that for a fixed problem size we can achieve higher speedups by increasing the number of processors. The efficiency starts to drop with more processors, and thus MPI alone does not quite achieve strong scaling. However, for a fixed number of processors we can maintain a similiar efficiency for larger problem sizes.
 
 ![mpi-conv](mpi-conv.png)
 ![mpi-ss1](mpi-strong-scale1.png)
 ![mpi-ss2](mpi-strong-scale2.png)
+![mpi-speedup](mpi-strong-speedup.png)
+![mpi-speedup-sample](mpi-speedup-sample.png)
 
-These are just results for the naive parallel case using MPI. To make it hybrid, we considered using both OpenMP (code [here](https://github.com/asross/cs205-project/blob/master/odyssey_rejection_sampling/openmp_dir/openmp.c)) and OpenAcc (code [here](https://github.com/asross/cs205-project/blob/master/odyssey_rejection_sampling/openacc_dir/openacc.cpp)):
+These are just results for the naive parallel case using MPI. We pursued a hybrid approach to decrease the amount of MPI communication. We considered both OpenMP (code [here](https://github.com/asross/cs205-project/blob/master/odyssey_rejection_sampling/openmp_dir/openmp.c)) and OpenAcc (code [here](https://github.com/asross/cs205-project/blob/master/odyssey_rejection_sampling/openacc_dir/openacc.cpp)):
 
 ![openaccmp](openaccmp.png)
 
@@ -14,7 +16,7 @@ Although OpenACC is clearly somewhat faster, we settled on OpenMP for two reason
 
 2. Ease of integration with the Python framework (which housed the rest of our code).
 
-Below are our full hybrid results for speedup (final code [here](https://github.com/asross/cs205-project/blob/master/odyssey_setup/teleporting_mcmc2/sample.pyx)):
+Below are our full hybrid results for speedup (final code [here](https://github.com/asross/cs205-project/blob/master/odyssey_setup/teleporting_mcmc2)):
 
 ![insert Shawn's stuff here once he turns them from raw data into a plot](hybrid-results.png)
 
