@@ -14,7 +14,7 @@ Although OpenACC is clearly somewhat faster, we settled on OpenMP for two reason
 
 2. Ease of integration with the Python framework (which housed the rest of our code).
 
-Below are our full hybrid results for speedup:
+Below are our full hybrid results for speedup (final code [here](https://github.com/asross/cs205-project/blob/master/odyssey_setup/teleporting_mcmc2/sample.pyx)):
 
 ![insert Shawn's stuff here once he turns them from raw data into a plot](hybrid-results.png)
 

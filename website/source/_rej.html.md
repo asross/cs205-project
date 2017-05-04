@@ -4,6 +4,17 @@ sampling, you essentially draw a giant box enclosing your distribution \\(s\\):
 
 ![rej-illust](rej-illust.png)
 
+With psuedocode:
+
+<div class='well' style='font-family: monospace; white-space: pre'><strong>function</strong> RejectionSample(\(s\), N):
+  samples = []
+  <strong>for</strong> attempt <strong>in</strong> 1...N:
+    \(x, y\) \(\sim\) box enclosing \(s\)
+    <strong>if</strong> \(s(x)\) < \(y\):
+      samples.add(\(x\))
+  <strong>return</strong> samples
+</div>
+
 For distributions with infinite support, you can use an encapsulating Gaussian
 or other analytically samplable distribution in place of a box, or you can
 approximate one. In any case, you pick a random location within your enclosing

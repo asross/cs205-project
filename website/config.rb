@@ -18,11 +18,15 @@ end
 helpers do
   def references
     {
+      'climate' => 'Solonen, Antti, et al. "Efficient MCMC for climate model parameter estimation: parallel adaptive chains and early rejection." Bayesian Analysis 7.3 (2012): 715-736.',
+      'forecast' => 'Geweke, John, and Charles Whiteman. "Bayesian forecasting." Handbook of economic forecasting 1 (2006): 3-80.',
+      'physics' => 'Ceperley, D. M. "Metropolis methods for quantum Monte Carlo simulations." AIP Conference Proceedings. Ed. James E. Gubernatis. Vol. 690. No. 1. AIP, 2003.',
       'wormhole' => 'Lan, Shiwei, Jeffrey Streets, and Babak Shahbaba. "Wormhole Hamiltonian Monte Carlo." Proceedings of the AAAI Conference on Artificial Intelligence. AAAI Conference on Artificial Intelligence. Vol. 2014. NIH Public Access, 2014.',
       'darting' => 'Ahn, Sungjin, Yutian Chen, and Max Welling. "Distributed and Adaptive Darting Monte Carlo through Regenerations." AISTATS. 2013.',
       'topicmodes' => 'Roberts, Margaret, Brandon Stewart, and Dustin Tingley. "Navigating the local modes of big data: The case of topic models." 2015.',
       'secondeig' => 'Haveliwala, Taher, and Sepandar Kamvar. The second eigenvalue of the Google matrix. Stanford, 2003.',
-      'convspeed' => 'Backåker, Fredrik. The Google Markov Chain: convergence speed and eigenvalues. Diss. Master Thesis, Uppsala University, Sweden, 2012.'
+      'convspeed' => 'Backåker, Fredrik. The Google Markov Chain: convergence speed and eigenvalues. Diss. Master Thesis, Uppsala University, Sweden, 2012.',
+      'pagerank' => 'Page, Lawrence, et al. The PageRank citation ranking: Bringing order to the web. Stanford InfoLab, 1999.'
     }
   end
 
@@ -32,6 +36,10 @@ helpers do
 
   def cite(ref)
     return "[<a href='#ref-#{ref}'>#{references.keys.index(ref)+1}</a>]".html_safe
+  end
+
+  def check
+    return "<input type='checkbox' checked disabled/>"
   end
 end
 

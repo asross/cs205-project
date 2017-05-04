@@ -8,7 +8,28 @@ Nevertheless, in our method, during each Metropolis-Hastings step, we either
 sample from our proposal distribution with probability \\(1-\epsilon\\) (in
 which case we accept or reject using the normal MH acceptance probability) or
 we “teleport” to a new location obtained by rejection sampling with probability
-\\(\epsilon\\). It is straightforward to show that this scheme, expressed
+\\(\epsilon\\). Psuedocode is as follows:
+
+
+<div class='well' style='font-family: monospace; white-space: pre'><strong>function</strong> TeleportingMCMC(\(s\), \(p\), \(x_0\), N, \(\epsilon\)):
+  samples = [\(x_0\)]
+  attempts = 0
+  <strong>while</strong> attempts < N:
+    <strong>if</strong> rand(0,1) < \(\epsilon\):
+      <strong>repeat</strong> {
+        \(x, y\) \(\sim\) box enclosing \(s\)
+        attempts++
+      } <strong>until</strong> \(s(x)\) < \(y\)
+      samples.add(\(x\))
+    <strong>else</strong>:
+      \(x_{1}\) = previous sample
+      \(x_{2} \sim p(x|x_{1})\)
+      attempts++
+      samples.add(rand(0,1) < \(s(x_{2})/s(x_{1})\) ? \(x_{2}\) : \(x_{1}\))
+  <strong>return</strong> samples
+</div>
+
+It is straightforward to show that this scheme, expressed
 within the framework of traditional Metropolis-Hastings, still satisfies the detailed
 balance criteria:
 
